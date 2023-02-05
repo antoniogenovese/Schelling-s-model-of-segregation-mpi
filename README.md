@@ -2,6 +2,8 @@
 
 A parallel implementation of the Shelling's model using OpenMPI.
 
+![](shelling_model.gif)
+
 Realizzato per il corso Programmazione Concorrente e Parallela su Cloud
 # **1. Introduzione al problema**
 Il modello di compone di una griglia di agenti divisi in due gruppi. Ogni agente può occupare uno spazio alla volta e desidera avere un vicinato la cui componente (ignorando spazi bianchi) sia per almeno il 30% appartenente al suo gruppo.
