@@ -148,9 +148,9 @@ per la weack scalability ogni processore lavora ad una sottomatrice 2000\*160.
 |23|3,4504|8,53|0,37|
 |24|3,4116|8,62|0,35|
 
-![](Aspose.Words.10f18974-73f2-480b-aee6-327d2382c0ca.001.png)
+![](speedup.png)
 
-![](Aspose.Words.10f18974-73f2-480b-aee6-327d2382c0ca.002.png)
+![](efficiency.png)
 
 Dalla tabella sopra riportata si evince uno speedup rallentato dall'overhead di comunicazione, che prevede ad ogni step lo scambio delle righe di confine e delle variabili necessarie per verificare che l'intera matrice sia vuota. Inoltre, come ci si aspettava, all'aumentare del numero di processi, il tempo di esecuzione decresce stabilmente appiattendosi verso la fine, sintomo dell'aumento dell'overhead di comunicazione rispetto alle righe da computare per ogni worker che invece decrescono.
 
