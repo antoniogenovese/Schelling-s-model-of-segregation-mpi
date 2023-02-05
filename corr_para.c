@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 
-void scatter(int * displ_rcv, int * num_rcv, int * local_rcv_num, int * local_snd_num, int * num_snd, int * displ_snd, int * from_snd_local, int * to_snd_local, int me, int m, int n, int nproc);
+void def_var(int * displ_rcv, int * num_rcv, int * local_rcv_num, int * local_snd_num, int * num_snd, int * displ_snd, int * from_snd_local, int * to_snd_local, int me, int m, int n, int nproc);
 
 int check_async(int i, int * array, int n, int me, int * localA, int * localB,double perc) {
 
@@ -271,7 +271,7 @@ int check(int to_snd_local, int to, int from, int * array, int local_rcv_num, in
 
   return count;
 }
-void scatter(int * displ_rcv, int * num_rcv, int * local_rcv_num, int * local_snd_num, int * num_snd, int * displ_snd, int * from_snd_local, int * to_snd_local, int me, int m, int n, int nproc) {
+void def_var(int * displ_rcv, int * num_rcv, int * local_rcv_num, int * local_snd_num, int * num_snd, int * displ_snd, int * from_snd_local, int * to_snd_local, int me, int m, int n, int nproc) {
   // scatter gather per righe
   // inizializzazione vettori di ricezione e invio
   if (me == 0) {
@@ -407,7 +407,7 @@ int m = atoi(argv[1]); // righe
     }
     fprintf(fptr, "\n");
   }
-  scatter(displ_rcv, num_rcv, & local_rcv_num, & local_snd_num, num_snd, displ_snd, & from_snd_local, & to_snd_local, me, m, n, nproc);
+  def_var(displ_rcv, num_rcv, & local_rcv_num, & local_snd_num, num_snd, displ_snd, & from_snd_local, & to_snd_local, me, m, n, nproc);
   localA = (int * ) malloc(n * local_rcv_num * sizeof(int));
   localB = (int * ) malloc(n * local_rcv_num * sizeof(int));
   array = (int * ) malloc(n * sizeof(int));
