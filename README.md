@@ -2,7 +2,7 @@
 
 A parallel implementation of the Shelling's model using OpenMPI.
 
-![](shelling_model.gif)
+![](shelling-model.gif)
 
 Realizzato per il corso Programmazione Concorrente e Parallela su Cloud
 # **1. Introduzione al problema**
