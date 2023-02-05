@@ -6,7 +6,7 @@
 
 #include "mpi.h"
 
-int check(int * array, int m, int n, int * A, int * B, int passi) {
+int check(int * array, int m, int n, int * A, int * B, double perc) {
   int count = 0;
   for (int i = 0; i < m; i++) // righe
   {
@@ -152,7 +152,8 @@ int main(int argc, char ** argv) {
   int m = atoi(argv[1]); // righe
   int n = atoi(argv[2]); // colonne
   int passiTot = atoi(argv[3]); // passi
-  int perc = atoi(argv[4])/100; // percentuale
+  int percent= atoi(argv[4]); //percentuale
+  double perc= (double)percent/100;
   int * A, * B, * array;
   int tot = 0; // variabile per controllare completamento
   int passi;
@@ -174,17 +175,17 @@ int main(int argc, char ** argv) {
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < n; j++) {
       srand(i * n + j);
-      A[i * n + j] = rand() % 3;
+      A[i * n + j] = rand() % 5;
     }
   }
 
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < n; j++) {
-      if (A[i * n + j] == 1) { // rosso
+      if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
         fprintf(fptr, "\U0001f7e5 ");
       }
 
-      if (A[i * n + j] == 2) { // blu
+      if (A[i * n + j] ==3 || A[i * n + j] == 4) { // blu
         fprintf(fptr, "\U0001f7e6 ");
       }
 
@@ -197,15 +198,15 @@ int main(int argc, char ** argv) {
   fprintf(fptr, "\n");
   
   for (passi = 1; passi <= passiTot; passi++) {
-    tot = check(array, m, n, A, B, passi);
+    tot = check(array, m, n, A, B, perc);
 
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        if (B[i * n + j] == 1) {
+        if (B[i * n + j] == 1 || B[i * n + j] == 2) {
           fprintf(fptr, "\U0001f7e5 ");
         }
 
-        if (B[i * n + j] == 2) {
+        if (B[i * n + j] == 3 || B[i * n + j] == 4) {
           fprintf(fptr, "\U0001f7e6 ");
         }
 
@@ -223,15 +224,15 @@ int main(int argc, char ** argv) {
 
     passi++;
     if (passi > passiTot) break;
-    tot = check(array, m, n, B, A, passi);
+    tot = check(array, m, n, B, A, perc);
 
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        if (A[i * n + j] == 1) { // rosso
+        if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
           fprintf(fptr, "\U0001f7e5 ");
         }
 
-        if (A[i * n + j] == 2) { // blu
+        if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
           fprintf(fptr, "\U0001f7e6 ");
         }
 
