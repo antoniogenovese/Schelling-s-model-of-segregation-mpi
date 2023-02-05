@@ -10,7 +10,7 @@
 
 void scatter(int * displ_rcv, int * num_rcv, int * local_rcv_num, int * local_snd_num, int * num_snd, int * displ_snd, int * from_snd_local, int * to_snd_local, int me, int m, int n, int nproc);
 
-int check_async(int i, int * array, int n, int me, int * localA, int * localB) {
+int check_async(int i, int * array, int n, int me, int * localA, int * localB,double perc) {
 
   int count = 0;
 
@@ -138,7 +138,7 @@ int check_async(int i, int * array, int n, int me, int * localA, int * localB) {
 
 }
 
-int check(int to_snd_local, int to, int from, int * array, int local_rcv_num, int n, int me, int * localA, int * localB, int nproc) {
+int check(int to_snd_local, int to, int from, int * array, int local_rcv_num, int n, int me, int * localA, int * localB, int nproc, double perc) {
   int count = 0;
   for (int i = 0; i < local_rcv_num; i++) // righe
   {
@@ -345,10 +345,11 @@ void main(int argc, char ** argv) {
   MPI_Comm_rank(MPI_COMM_WORLD, & me);
   MPI_Request request[2];
 
-  int m = atoi(argv[1]); // righe
+int m = atoi(argv[1]); // righe
   int n = atoi(argv[2]); // colonne
   int passiTot = atoi(argv[3]); // passi
-  int perc = atoi(argv[4])/100; // percentuale
+  int percent= atoi(argv[4]); //percentuale
+  double perc= (double)percent/100;
   int local_rcv_num;
   int local_snd_num; // righe inviate nella gather
   int from_snd_local;
@@ -388,17 +389,17 @@ void main(int argc, char ** argv) {
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
         srand(i * n + j);
-        A[i * n + j] = rand() % 3;
+        A[i * n + j] = rand() % 5;
       }
     }
     // stampa matrice su file
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        if (A[i * n + j] == 1) { // rosso
+        if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
           fprintf(fptr, "\U0001f7e5 ");
         }
 
-        if (A[i * n + j] == 2) { // blu
+        if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
           fprintf(fptr, "\U0001f7e6 ");
         }
 
@@ -431,17 +432,17 @@ void main(int argc, char ** argv) {
 
   MPI_Scatterv( & A[0], & num_rcv[0], & displ_rcv[0], MPI_INT, & localA[0], local_rcv_num * n, MPI_INT, 0, MPI_COMM_WORLD);
 
-  finito = check(to_snd_local, to_snd_local, from_snd_local, array, local_rcv_num, n, me, localA, localB, nproc);
+  finito = check(to_snd_local, to_snd_local, from_snd_local, array, local_rcv_num, n, me, localA, localB, nproc,perc);
   MPI_Gatherv( & localB[from_snd_local * n], local_snd_num * n, MPI_INT, & A[0], & num_snd[0], & displ_snd[0], MPI_INT, 0, MPI_COMM_WORLD);
 
   if (me == 0) {
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        if (A[i * n + j] == 1) { // rosso
+        if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
           fprintf(fptr, "\U0001f7e5 ");
         }
 
-        if (A[i * n + j] == 2) { // blu
+        if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
           fprintf(fptr, "\U0001f7e6 ");
         }
 
@@ -483,15 +484,15 @@ void main(int argc, char ** argv) {
         me + 1, 1, MPI_COMM_WORLD, & request[1]);
     }
 
-    finito = finito + check(to_snd_local, to, from, array, local_rcv_num, n, me, localB, localA, nproc);
+    finito = finito + check(to_snd_local, to, from, array, local_rcv_num, n, me, localB, localA, nproc,perc);
     MPI_Waitall(2, request, MPI_STATUSES_IGNORE);
     if (me == 0) {
-      finito = finito + check_async(local_rcv_num - 2, array, n, me, localB, localA);
+      finito = finito + check_async(local_rcv_num - 2, array, n, me, localB, localA,perc);
     } else if (me == nproc - 1) {
-      finito = finito + check_async(1, array, n, me, localB, localA);
+      finito = finito + check_async(1, array, n, me, localB, localA,perc);
     } else {
-      finito = finito + check_async(local_rcv_num - 2, array, n, me, localB, localA);
-      finito = finito + check_async(1, array, n, me, localB, localA);
+      finito = finito + check_async(local_rcv_num - 2, array, n, me, localB, localA,perc);
+      finito = finito + check_async(1, array, n, me, localB, localA,perc);
     }
 
     MPI_Gatherv( & localA[from_snd_local * n], local_snd_num * n, MPI_INT, & A[0], & num_snd[0], & displ_snd[0], MPI_INT, 0, MPI_COMM_WORLD);
@@ -499,11 +500,11 @@ void main(int argc, char ** argv) {
     if (me == 0) {
       for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-          if (A[i * n + j] == 1) { // rosso
+          if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
             fprintf(fptr, "\U0001f7e5 ");
           }
 
-          if (A[i * n + j] == 2) { // blu
+          if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
             fprintf(fptr, "\U0001f7e6 ");
           }
 
@@ -522,6 +523,7 @@ void main(int argc, char ** argv) {
     if (tot == m * n) break;
 
     passi++;
+    if(passi==passiTot) break;
     finito = 0;
     if (me == 0) {
       if (nproc > 1) {
@@ -547,17 +549,17 @@ void main(int argc, char ** argv) {
         me + 1, 1, MPI_COMM_WORLD, & request[1]);
     }
 
-    finito = finito + check(to_snd_local, to, from, array, local_rcv_num, n, me, localA, localB, nproc);
+    finito = finito + check(to_snd_local, to, from, array, local_rcv_num, n, me, localA, localB, nproc,perc);
     MPI_Waitall(2, request, MPI_STATUSES_IGNORE);
 
     if (me == 0) {
 
-      finito = finito + check_async(local_rcv_num - 2, array, n, me, localA, localB);
+      finito = finito + check_async(local_rcv_num - 2, array, n, me, localA, localB,perc);
     } else if (me == nproc - 1) {
-      finito = finito + check_async(1, array, n, me, localA, localB);
+      finito = finito + check_async(1, array, n, me, localA, localB,perc);
     } else {
-      finito = finito + check_async(local_rcv_num - 2, array, n, me, localA, localB);
-      finito = finito + check_async(1, array, n, me, localA, localB);
+      finito = finito + check_async(local_rcv_num - 2, array, n, me, localA, localB,perc);
+      finito = finito + check_async(1, array, n, me, localA, localB,perc);
     }
 
     finito = 0;
@@ -566,11 +568,11 @@ void main(int argc, char ** argv) {
     if (me == 0) {
       for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-          if (A[i * n + j] == 1) { // rosso
+          if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
             fprintf(fptr, "\U0001f7e5 ");
           }
 
-          if (A[i * n + j] == 2) { // blu
+          if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
             fprintf(fptr, "\U0001f7e6 ");
           }
 
