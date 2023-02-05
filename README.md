@@ -78,10 +78,10 @@ Riguardo la correttezza sono stati creati due file C, uno per l'esecuzione seque
 
 Eseguire i seguenti comandi:
 
-  gcc -o sequenz seq.c
-  mpicc -o parasync parasync.c 
+  mpicc -o sequenz corr_sequenz.c
+  mpicc -o para corr_para.c 
   mpirun --allow-run-as-root ./sequenz M N S T 
-  mpirun --allow-run-as-root -np P ./parasync M N S T
+  mpirun --allow-run-as-root -np P ./para M N S T
 
 Dove M è il numero di righe, N è il numero di colonne, P il numero di processori, S il numero di passi, T (da 0 a 100) la percentuale di compiacimento. Successivamente, verranno prodotti due file .txt contenenti le stampe della matrice lungo i diversi passi. 
 
