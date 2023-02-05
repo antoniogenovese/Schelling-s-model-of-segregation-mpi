@@ -9,21 +9,21 @@ Il modello di compone di una griglia di agenti divisi in due gruppi. Ogni agente
 In ogni round l'agente controlla che il suo vicinato soddisfi questo criterio, in caso contrario l'agente si trasferisce in uno spazio libero. La simulazione si interrompe dopo un numero massimo di S step oppure quando tutti gli agenti sono soddisfatti.
 # **2. Soluzione proposta**
 La soluzione prevede che tutti i processori lavorino equamente su sottomatrici (quasi) uguali. Possiamo distinguere la soluzione in tre parti: suddivisione della matrice, esecuzione parallela sulle sottomatrici e raccolta della matrice finale.
-## `	`**2.1. Suddivisione della matrice**
+##   **2.1. Suddivisione della matrice**
 Data la matrice iniziale M\*N e P processori, i processori 0 e P-1 riceveranno (M/P)+1 righe, mentre per i restanti vengono assegnate (M/P)+2 righe. Inoltre, nel caso in cui N non sia multiplo di P assegniamo ai primi R processori una riga in più. 
-## `	`**2.2. Esecuzione parallela**
+##   **2.2. Esecuzione parallela**
 La soluzione prevede che in ogni passo i processori lavorino dalla seconda alla penultima riga della sottomatrice assegnatagli. La prima e l’ultima riga sono utilizzate esclusivamente per il controllo dei vicini delle righe adiacenti. Essendo però queste due righe oggetto di lavoro di altri processori, che quindi possono cambiarle, i processori devono aspettare che gli altri P gli inviino le righe aggiornate. Per ottenere un'esecuzione più efficiente le righe non interessate a questo scambio iniziano il lavoro controllando se per ogni cella il vicinato rispetta i requisiti desiderati. Una volta ricevuti gli aggiornamenti dagli altri processori, si controllano le righe non ancora ispezionate. Si ripete l'esecuzione finché tutte le celle non sono soddisfatte o per un numero massimo di S passi.
-## `	`**2.3. Raccolta dei dati**
+##   **2.3. Raccolta dei dati**
 Al termine degli S passi si riuniscono tutte le sottomatrici e si stampa il tempo totale di esecuzione. Quest'ultimo viene calcolato a partire dalla suddivisione della matrice fino alla raccolta delle sottomatrici da parte del processo master.
 # **3. Dettagli implementativi**
 La struttura dati scelta è una semplice matrice di interi per rappresentare la griglia del modello.
 
-`	`**3.1. Distribuzione dei dati**
+##   **3.1. Distribuzione dei dati**
 
 Ogni processo lavora su due sottomatrici (lettura e scrittura) di dimensioni uguali e utilizzerà un array di dimensione N per lo scambio degli agenti.
 
 Ogni processo chiama la funzione “def\_var” dove calcola la dimensione della sua sottomatrice, il numero di righe che lavorano in maniera sincrona, il numero di righe che riceve dalla ScatterV e il numero di righe che deve inviare nella GatherV. Inoltre, il master calcola quante e quali righe deve ricevere ogni processore dalla matrice principale, variabili utili per ScatterV e GatherV.
-## `	`**3.2. Esecuzione parallela**
+##   **3.2. Esecuzione parallela**
 All'inizio di ogni passo i processi comunicano tra loro per l'invio asincrono delle righe ai bordi, che dunque dipendono da altri processi, nel frattempo che le comunicazioni si concludano, ogni processo lavora sulle righe intermedie della matrice, per poi attendere la fine della comunicazione e lavorare sulla prima e ultima riga, appena ricevute.
 ```
 //comunicazione  tra processi
@@ -112,13 +112,13 @@ mpicc para\_bench.c -o para
 mpirun --allow-run-as-root ./sequenz M N S T
 
 mpirun --allow-run-as-root -np P ./para M N S T
-# **6. Raccolta Benchmark**
+# **7. Raccolta Benchmark**
 Per la fase di benchmarking è stato testato il comportamento sia in termini di scalabilità forte (la dimensione dell'input è costante mentre il numero di processori varia), sia in termini di scalabilità debole (per ogni test ongi processore ha sempre lo stesso carico di lavoro). Le analisi sono state effettuate su un cluster GCP di 6 nodi (e2-standard-4), ognuno con 4 vCPU e 16GB di RAM. Dunque, si hanno due file: para\_bench.c e forest\_bench\_seq.c che prevedono solo la stampa del tempo di esecuzione. I dati raccolti sono stati calcolati ponendo il numero di passi totali S = 100 e la percentuale di compiacimento T = 30.
 
 Per la strong scalability è stata testata una matrice 2000\*2000,
 
 per la weack scalability ogni processore lavora ad una sottomatrice 2000\*160.
-##        **6.1. Strong scalability**
+##        **7.1. Strong scalability**
 
 
 |**#Processori**|**Time**|**Speedup**|**Efficiency**|
@@ -155,7 +155,7 @@ per la weack scalability ogni processore lavora ad una sottomatrice 2000\*160.
 Dalla tabella sopra riportata si evince uno speedup rallentato dall'overhead di comunicazione, che prevede ad ogni step lo scambio delle righe di confine e delle variabili necessarie per verificare che l'intera matrice sia vuota. Inoltre, come ci si aspettava, all'aumentare del numero di processi, il tempo di esecuzione decresce stabilmente appiattendosi verso la fine, sintomo dell'aumento dell'overhead di comunicazione rispetto alle righe da computare per ogni worker che invece decrescono.
 
 Si può invece notare come l'efficienza sia stabile lungo le diverse esecuzioni, evidenziando un utilizzo quasi costante del singolo core, ciò dovuto al numero costante di elementi che vengono scambiati. Infatti, indipendentemente dal numero di processi, il processo i-esimo comunicherà sempre e solo le 4 righe di confine e la variabile empty\_counter.
-##   **6.2. Weak scalability**
+##   **7.2. Weak scalability**
 Come già affermato precedentemente, il workload scelto per ogni processo è di una matrice di dimensioni 2000\*160, dunque ogni processo va a lavorare su 320.000 celle, gli altri valori invece, sono gli stessi della strong scalability. N.B. Ogni esperimento ha previsto l'incremento delle sole colonne della matrice( 2000x160 per 1 p, 2000x320 per 2 p, 2000\*480 per 3 p...).
 
 |**#Processori**|**Time**|
@@ -185,6 +185,6 @@ Come già affermato precedentemente, il workload scelto per ogni processo è di 
 |23|6,208|
 |24|6,2152|
 
-# **7. Conclusioni**
+# **8. Conclusioni**
 
 Per concludere, l'algoritmo giova sicuramente dalla parallelizzazione, anche se non appieno, ciò è dovuto alle comunicazioni che vengono effettuate ad ogni step e che limitano sicuramente quello che è lo speedup, di certo, evitando il controllo sull'assenza di alberi nella matrice si potrebbero ottenere dei miglioramenti. Per il resto, l'utilizzo di procedure non bloccanti e strategie atte al "risparmio" di memoria ha permesso di ottenere comunque buoni risultati.
