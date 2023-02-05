@@ -105,13 +105,13 @@ L'esecuzione restituerà l'esito del confronto.
 # **6 Esecuzione Benchmarks**
 Riguardo l'esecuzione dei file per i benchmarks è necessario eseguire i seguenti comandi:
 
-mpicc sequenz\_bench.c -o sequenz
+     mpicc sequenz\_bench.c -o sequenz
 
-mpicc para\_bench.c -o para
+     mpicc para\_bench.c -o para
 
-mpirun --allow-run-as-root ./sequenz M N S T
+     mpirun --allow-run-as-root ./sequenz M N S T
 
-mpirun --allow-run-as-root -np P ./para M N S T
+     mpirun --allow-run-as-root -np P ./para M N S T
 # **7. Raccolta Benchmark**
 Per la fase di benchmarking è stato testato il comportamento sia in termini di scalabilità forte (la dimensione dell'input è costante mentre il numero di processori varia), sia in termini di scalabilità debole (per ogni test ongi processore ha sempre lo stesso carico di lavoro). Le analisi sono state effettuate su un cluster GCP di 6 nodi (e2-standard-4), ognuno con 4 vCPU e 16GB di RAM. Dunque, si hanno due file: para\_bench.c e forest\_bench\_seq.c che prevedono solo la stampa del tempo di esecuzione. I dati raccolti sono stati calcolati ponendo il numero di passi totali S = 100 e la percentuale di compiacimento T = 30.
 
