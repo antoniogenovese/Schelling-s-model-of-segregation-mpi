@@ -434,11 +434,11 @@ int m = atoi(argv[1]); // righe
   if (me == 0) {
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
+        if (A[i * n + j] == 1) { // rosso
           fprintf(fptr, "\U0001f7e5 ");
         }
 
-        if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
+        if (A[i * n + j] == 2) { // blu
           fprintf(fptr, "\U0001f7e6 ");
         }
 
@@ -496,11 +496,11 @@ int m = atoi(argv[1]); // righe
     if (me == 0) {
       for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-          if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
+          if (A[i * n + j] == 1) { // rosso
             fprintf(fptr, "\U0001f7e5 ");
           }
 
-          if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
+          if (A[i * n + j] == 2) { // blu
             fprintf(fptr, "\U0001f7e6 ");
           }
 
@@ -564,11 +564,11 @@ int m = atoi(argv[1]); // righe
     if (me == 0) {
       for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
-          if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
+          if (A[i * n + j] == 1) { // rosso
             fprintf(fptr, "\U0001f7e5 ");
           }
 
-          if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
+          if (A[i * n + j] == 2) { // blu
             fprintf(fptr, "\U0001f7e6 ");
           }
 
