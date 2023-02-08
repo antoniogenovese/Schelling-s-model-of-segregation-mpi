@@ -4,7 +4,7 @@ A parallel implementation of the Shelling's model using OpenMPI.
 
 Realizzato per il corso Programmazione Concorrente e Parallela su Cloud
 
-![](image/shelling-model.gif)
+![](images/shelling-model.gif)
 # **1. Introduzione al problema**
 Il modello si compone di una griglia di agenti divisi in due gruppi. Ogni agente può occupare uno spazio alla volta e il suo obiettivo è avere un vicinato la cui componente (ignorando spazi vuoti) sia per almeno il 30% appartenente al proprio gruppo.
 In ogni round l'agente controlla che il suo vicinato soddisfi questo criterio, in caso contrario l'agente si trasferisce in uno spazio libero. La simulazione si interrompe dopo un numero massimo di S step oppure quando tutti gli agenti sono soddisfatti.
@@ -61,7 +61,7 @@ Ogni processo chiama la funzione “def\_var” dove calcola la dimensione della
     MPI_Scatterv( & A[0], & num_rcv[0], & displ_rcv[0], MPI_INT, & localA[0], local_rcv_num * n, MPI_INT, 0, MPI_COMM_WORLD);
 
 ```
-![](image/divisione_carico.png)
+![](images/divisione_carico.png)
 ##     **3.2. Esecuzione parallela**
 All'inizio di ogni passo i processi comunicano tra loro per l'invio e la ricezione asincrona delle righe di confine, che dunque dipendono da altri processi. Nel frattempo che le comunicazioni si concludono, ogni processo lavora sulle righe intermedie della matrice, per poi attendere la fine della comunicazione e lavorare sulle righe mancanti. Le righe ricevute saranno usate solo per lavorare alle righe adiacenti ad esse.
 
@@ -198,9 +198,9 @@ Per la strong scalability è stata testata una matrice 2000\*2000, per la weak s
 |23|3,4504|8,53|0,37|
 |24|3,4116|8,62|0,35|
 
-![](image/speedup.png)
+![](images/speedup.png)
 
-![](image/efficiency.png)
+![](images/efficiency.png)
 
 Dai risultati ottenuti si evince uno speedup “rallentato” dall'overhead di comunicazione, che prevede ad ogni step lo scambio delle righe di confine. Inoltre, come ci si aspettava, all'aumentare del numero di processi, il tempo di esecuzione decresce appiattendosi verso la fine.
 Anche l’efficienza risente dell’overhead di comunicazione, nonostante sia comunque abbastanza stabile, ciò dovuto al numero costante di elementi che vengono scambiati. Infatti, indipendentemente dal numero di processi o di righe in input, il processo i-esimo comunicherà sempre e solo le 4 righe di confine.
@@ -235,7 +235,7 @@ Anche l’efficienza risente dell’overhead di comunicazione, nonostante sia co
 
 Come già affermato precedentemente, il workload scelto per ogni processo è di una matrice di dimensioni 2000\*160, dunque ogni processo va a lavorare su 320.000 celle. Gli altri valori invece, sono gli stessi della strong scalability. Ogni esperimento ha previsto l'incremento delle sole colonne della matrice ( 2000x160 per 1 p, 2000x320 per 2 p, 2000\*480 per 3 p, ...).
 
-![](image/weak.png)
+![](images/weak.png)
 
 # **8. Conclusioni**
 Per concludere, l'algoritmo giova sicuramente dalla parallelizzazione, anche se non appieno, causa le comunicazioni ad ogni step che rallentano i tempi limitando lo speedup. Per il resto, l'utilizzo di procedure non bloccanti ha permesso di ottenere comunque buoni risultati. Ovviamente il controllo ad ogni passo sullo stato di soddisfacimento della matrice avrebbe portato ad altre comunicazioni aumentando l’overhead.
