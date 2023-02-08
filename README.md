@@ -4,7 +4,7 @@ A parallel implementation of the Shelling's model using OpenMPI.
 
 Realizzato per il corso Programmazione Concorrente e Parallela su Cloud
 
-![](shelling-model.gif)
+![](image/shelling-model.gif)
 # **1. Introduzione al problema**
 Il modello si compone di una griglia di agenti divisi in due gruppi. Ogni agente può occupare uno spazio alla volta e il suo obiettivo è avere un vicinato la cui componente (ignorando spazi vuoti) sia per almeno il 30% appartenente al proprio gruppo.
 In ogni round l'agente controlla che il suo vicinato soddisfi questo criterio, in caso contrario l'agente si trasferisce in uno spazio libero. La simulazione si interrompe dopo un numero massimo di S step oppure quando tutti gli agenti sono soddisfatti.
@@ -55,13 +55,13 @@ La struttura dati scelta è una semplice matrice di interi per rappresentare la 
 
 ##     **3.1. Distribuzione dei dati**
 Ogni processo lavora su due sottomatrici (lettura e scrittura) di dimensioni uguali e utilizzerà un array di dimensione N per lo scambio degli agenti.
-Ogni processo chiama la funzione “def\_var” dove calcola la dimensione della sua sottomatrice, il numero di righe che lavorano in maniera sincrona, il numero di righe che riceve dalla ScatterV e il numero di righe che deve inviare nella GatherV. Inoltre, il master calcola quante e quali righe deve ricevere e inviare ogni processore alla matrice principale, variabili utili per ScatterV e GatherV. Successivamente il master effettua la ScatterV assegnando ad ogni processore la sua sottomatrice.```
+Ogni processo chiama la funzione “def\_var” dove calcola la dimensione della sua sottomatrice, il numero di righe che lavorano in maniera sincrona, il numero di righe che riceve dalla ScatterV e il numero di righe che deve inviare nella GatherV. Inoltre, il master calcola quante e quali righe deve ricevere e inviare ogni processore alla matrice principale, variabili utili per ScatterV e GatherV. Successivamente il master effettua la ScatterV assegnando ad ogni processore la sua sottomatrice.
 
 ```
     MPI_Scatterv( & A[0], & num_rcv[0], & displ_rcv[0], MPI_INT, & localA[0], local_rcv_num * n, MPI_INT, 0, MPI_COMM_WORLD);
 
 ```
-![](divisione_carico.png)
+![](image/divisione_carico.png)
 ##     **3.2. Esecuzione parallela**
 All'inizio di ogni passo i processi comunicano tra loro per l'invio e la ricezione asincrona delle righe di confine, che dunque dipendono da altri processi. Nel frattempo che le comunicazioni si concludono, ogni processo lavora sulle righe intermedie della matrice, per poi attendere la fine della comunicazione e lavorare sulle righe mancanti. Le righe ricevute saranno usate solo per lavorare alle righe adiacenti ad esse.
 
@@ -100,9 +100,10 @@ All'inizio di ogni passo i processi comunicano tra loro per l'invio e la ricezio
          //check dei vicini delle celle appartenenti alle righe di confine
          
 ```
-La funzione check restituisce un valore intero "finito" che indica il numero di celle soddisfatte. La funzione, eseguita da ogni processore, controlla per ogni cella della sottomatrice se i vicini (non vuoti) siano per almeno il 30% appartenenti al proprio gruppo. In caso contrario scambia il valore della cella in questione con la prima posizione libera della riga. Lo swap viene effettuato utilizzando le sottomatrici (scrittura e lettura) e un array di dimensione N. Quando un valore deve essere cambiato, questo swap deve essere visibile solo nella sottomatrice in scrittura, quella in lettura non deve subire cambiamenti (questo perché il cambiamento di una riga in lettura influenzerebbe le righe successive e dal momento che i vari processori condividono le prime e le ultime due righe questi cambiamenti dovrebbero essere visti anche da loro). L'array è utilizzato per copiare inizialmente la riga in esame ed effettuare lì i vari swap.
+La funzione check restituisce un valore intero "finito" che indica il numero di celle soddisfatte. La funzione, eseguita da ogni processore, controlla per ogni cella della sottomatrice se i vicini (non vuoti) siano appartenenti al proprio gruppo per almeno il T%. In caso contrario scambia il valore della cella in questione con la prima posizione libera della riga. Lo swap viene effettuato utilizzando le sottomatrici (scrittura e lettura) e un array di dimensione N. Quando un valore deve essere cambiato, questo swap deve essere visibile solo nella sottomatrice in scrittura, quella in lettura non deve subire cambiamenti (questo perché il cambiamento di una riga in lettura influenzerebbe le righe successive e dal momento che i vari processori condividono le prime e le ultime due righe questi cambiamenti dovrebbero essere visti anche da loro). L'array è utilizzato per copiare inizialmente la riga in esame ed effettuare lì i vari swap.
 
 ```
+     //controllo che i vicini siano del proprio gruppo siano < del T%
     if ((double) same / (div + same) < perc) {
         int v = 0;
         while (true) {
@@ -155,7 +156,7 @@ Eseguire dunque i seguenti comandi:
   ./check
 
 ```
-L'esecuzione restituirà l'esito del confronto.
+L'esecuzione restituirà l'esito del confronto delle matrici.
 # **6. Esecuzione Benchmarks**
 Riguardo l'esecuzione dei file per i benchmarks è necessario eseguire i seguenti comandi:
 ```
@@ -166,7 +167,7 @@ Riguardo l'esecuzione dei file per i benchmarks è necessario eseguire i seguent
 
  ```
 # **7. Raccolta Benchmark**
-Per la fase di benchmarking è stato testato il comportamento sia in termini di scalabilità forte (la dimensione dell'input è costante mentre il numero di processori varia), sia in termini di scalabilità debole (per ogni test ogni processore ha sempre lo stesso carico di lavoro). Le analisi sono state effettuate su un cluster GCP di 6 nodi (e2-standard-4), ognuno con 4 vCPU e 16GB di RAM. Dunque, si hanno due file: para\_bench.c e sequenz\_bench.c che prevedono solo la stampa del tempo di esecuzione. I dati raccolti sono stati calcolati ponendo il numero di passi totali S = 100 e la percentuale di compiacimento T = 30. È inoltre importante dire che per la raccolta dei dati non si effettua il controllo ad ogni passo se la matrice è totalmente soddisfatta o meno, ma si eseguono tutti gli S passi dati in input. Ciò comporta un risparmio del tempo di esecuzione in quanto i processi non devono comunicare ad ogni passo al processo master se tutte le celle della sottomatrice sono soddisfatte. D’altra parte in questo modo la matrice si possa ordinare in un numero di passi minore di S, ma la computazione continuerebbe lo stesso. Questa scelta è stata fatta perché che con una matrice di grandi dimensioni, con il 20% di spazi bianchi e che con questo algoritmo, è poco probabile che la matrice sia soddisfatta in 100 passi. 
+Per la fase di benchmarking è stato testato il comportamento sia in termini di scalabilità forte (la dimensione dell'input è costante mentre il numero di processori varia), sia in termini di scalabilità debole (per ogni test ogni processore ha sempre lo stesso carico di lavoro). Le analisi sono state effettuate su un cluster GCP di 6 nodi (e2-standard-4), ognuno con 4 vCPU e 16GB di RAM. Dunque, si hanno due file: para\_bench.c e sequenz\_bench.c che prevedono solo la stampa del tempo di esecuzione. I dati raccolti sono stati calcolati ponendo il numero di passi totali S = 100 e la percentuale di compiacimento T = 30. È inoltre importante dire che per la raccolta dei dati non si effettua il controllo ad ogni passo se la matrice è totalmente soddisfatta o meno, ma si eseguono tutti gli S passi dati in input. Ciò comporta un risparmio del tempo di esecuzione in quanto i processi non devono comunicare ad ogni passo al processo master quante celle della sottomatrice sono soddisfatte. D’altra parte in questo modo la matrice si può ordinare in un numero di passi minore di S, ma la computazione continuerebbe lo stesso. Questa scelta è stata fatta perché che con una matrice di grandi dimensioni, con il 20% di spazi bianchi e che con questo algoritmo, è poco probabile che la matrice sia soddisfatta in 100 passi. 
 Per la strong scalability è stata testata una matrice 2000\*2000, per la weak scalability ogni processore lavora ad una sottomatrice 160\*2000.
 ##     **7.1. Strong scalability**
 
@@ -197,9 +198,9 @@ Per la strong scalability è stata testata una matrice 2000\*2000, per la weak s
 |23|3,4504|8,53|0,37|
 |24|3,4116|8,62|0,35|
 
-![](speedup.png)
+![](image/speedup.png)
 
-![](efficiency.png)
+![](image/efficiency.png)
 
 Dai risultati ottenuti si evince uno speedup “rallentato” dall'overhead di comunicazione, che prevede ad ogni step lo scambio delle righe di confine. Inoltre, come ci si aspettava, all'aumentare del numero di processi, il tempo di esecuzione decresce appiattendosi verso la fine.
 Anche l’efficienza risente dell’overhead di comunicazione, nonostante sia comunque abbastanza stabile, ciò dovuto al numero costante di elementi che vengono scambiati. Infatti, indipendentemente dal numero di processi o di righe in input, il processo i-esimo comunicherà sempre e solo le 4 righe di confine.
@@ -232,9 +233,9 @@ Anche l’efficienza risente dell’overhead di comunicazione, nonostante sia co
 |23|2,60|
 |24|2,71|
 
-Come già affermato precedentemente, il workload scelto per ogni processo è di una matrice di dimensioni 2000\*160, dunque ogni processo va a lavorare su 320.000 celle, gli altri valori invece, sono gli stessi della strong scalability. Ogni esperimento ha previsto l'incremento delle sole colonne della matrice ( 2000x160 per 1 p, 2000x320 per 2 p, 2000\*480 per 3 p, ...).
+Come già affermato precedentemente, il workload scelto per ogni processo è di una matrice di dimensioni 2000\*160, dunque ogni processo va a lavorare su 320.000 celle. Gli altri valori invece, sono gli stessi della strong scalability. Ogni esperimento ha previsto l'incremento delle sole colonne della matrice ( 2000x160 per 1 p, 2000x320 per 2 p, 2000\*480 per 3 p, ...).
 
-![](weak.png)
+![](image/weak.png)
 
 # **8. Conclusioni**
-Per concludere, l'algoritmo giova sicuramente dalla parallelizzazione, anche se non appieno, causa le comunicazioni ad ogni step che rallentano i tempi limitando lo speedup. Per il resto, l'utilizzo di procedure non bloccanti e strategie atte al "risparmio" di memoria ha permesso di ottenere comunque buoni risultati. Ovviamente il controllo ad ogni passo sullo stato di soddisfacimento della matrice avrebbe portato ad altre comunicazioni aumentando l’overhead.
+Per concludere, l'algoritmo giova sicuramente dalla parallelizzazione, anche se non appieno, causa le comunicazioni ad ogni step che rallentano i tempi limitando lo speedup. Per il resto, l'utilizzo di procedure non bloccanti ha permesso di ottenere comunque buoni risultati. Ovviamente il controllo ad ogni passo sullo stato di soddisfacimento della matrice avrebbe portato ad altre comunicazioni aumentando l’overhead.
