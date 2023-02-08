@@ -182,10 +182,12 @@ int main(int argc, char ** argv) {
   for (int i = 0; i < m; i++) {
     for (int j = 0; j < n; j++) {
       if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
+        A[i * n + j] = 1;
         fprintf(fptr, "\U0001f7e5 ");
       }
 
       if (A[i * n + j] ==3 || A[i * n + j] == 4) { // blu
+        A[i * n + j] = 2;
         fprintf(fptr, "\U0001f7e6 ");
       }
 
@@ -202,11 +204,12 @@ int main(int argc, char ** argv) {
 
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        if (B[i * n + j] == 1 || B[i * n + j] == 2) {
+        if (B[i * n + j] == 1) {
+          
           fprintf(fptr, "\U0001f7e5 ");
         }
 
-        if (B[i * n + j] == 3 || B[i * n + j] == 4) {
+        if (B[i * n + j] == 2) {
           fprintf(fptr, "\U0001f7e6 ");
         }
 
@@ -228,11 +231,11 @@ int main(int argc, char ** argv) {
 
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
+        if (A[i * n + j] == 1) { // rosso
           fprintf(fptr, "\U0001f7e5 ");
         }
 
-        if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
+        if (A[i * n + j] == 2) { // blu
           fprintf(fptr, "\U0001f7e6 ");
         }
 
