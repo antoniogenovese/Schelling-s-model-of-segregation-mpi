@@ -392,10 +392,12 @@ int m = atoi(argv[1]); // righe
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
         if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
+          A[i * n + j] = 1;
           fprintf(fptr, "\U0001f7e5 ");
         }
 
         if (A[i * n + j] == 3 || A[i * n + j] == 4) { // blu
+          A[i * n + j] = 2;
           fprintf(fptr, "\U0001f7e6 ");
         }
 
