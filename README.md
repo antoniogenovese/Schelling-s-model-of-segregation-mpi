@@ -103,8 +103,8 @@ All'inizio di ogni passo i processi comunicano tra loro per l'invio e la ricezio
 La funzione check restituisce un valore intero "finito" che indica il numero di celle soddisfatte. La funzione, eseguita da ogni processore, controlla per ogni cella della sottomatrice se i vicini (non vuoti) siano appartenenti al proprio gruppo per almeno il T%. In caso contrario scambia il valore della cella in questione con la prima posizione libera della riga. Lo swap viene effettuato utilizzando le sottomatrici (scrittura e lettura) e un array di dimensione N. Quando un valore deve essere cambiato, questo swap deve essere visibile solo nella sottomatrice in scrittura, quella in lettura non deve subire cambiamenti (questo perché il cambiamento di una riga in lettura influenzerebbe le righe successive e dal momento che i vari processori condividono le prime e le ultime due righe questi cambiamenti dovrebbero essere visti anche da loro). L'array è utilizzato per copiare inizialmente la riga in esame ed effettuare lì i vari swap.
 
 ```
-     //se la percentuale dei vicini del proprio gruppo è < di T, allora swap,     
-    if ((double) same / (div + same) < T) {
+     //se la percentuale dei vicini del proprio gruppo è < di perc, allora swap,     
+    if ((double) same / (div + same) < perc) {
         int v = 0;
         while (true) {
             if (array[v] == 0) {
