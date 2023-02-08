@@ -20,6 +20,7 @@ Al termine degli S passi si riuniscono tutte le sottomatrici e si stampa il temp
 La struttura dati scelta è una semplice matrice di interi per rappresentare la griglia del modello. La matrice si compone di tre gruppi: bianchi (rappresentano gli spazi vuoti, circa 20%),  blu (circa 40%) e i rossi (circa 40%).
 
 ```
+     //costruzione matrice
      for (int i = 0; i < m; i++) {
          for (int j = 0; j < n; j++) {
            srand(i * n + j);
