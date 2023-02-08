@@ -383,6 +383,12 @@ void main(int argc, char ** argv) {
       for (int j = 0; j < n; j++) {
         srand(i * n + j);
         A[i * n + j] = rand() % 5;
+        if (A[i * n + j] == 1 || A[i * n + j] == 2) { // rosso
+          A[i * n + j] = 1;
+        }
+        if (A[i * n + j] ==3 || A[i * n + j] == 4) { // blu
+          A[i * n + j] = 2;
+        }
       }
     }
   }
